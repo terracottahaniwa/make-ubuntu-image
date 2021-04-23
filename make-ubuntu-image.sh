@@ -60,7 +60,7 @@ chroot mnt sh -c "echo '  renderer: networkd' >> /etc/netplan/networkd.yaml"
 chroot mnt sh -c "echo '  ethernets:'         >> /etc/netplan/networkd.yaml"
 chroot mnt sh -c "echo '    enp3s0:'          >> /etc/netplan/networkd.yaml"
 chroot mnt sh -c "echo '      tdhcp4: true'   >> /etc/netplan/networkd.yaml"
-chroot mnt sh -c "echo 'groovy' > /etc/hostname"
+chroot mnt sh -c "echo 'hirsute' > /etc/hostname"
 chroot mnt sh -c "hostname $(echo /etc/hostname)"
 
 chroot mnt sh -c "adduser ubuntu"
