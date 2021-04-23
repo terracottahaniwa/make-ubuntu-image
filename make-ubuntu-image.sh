@@ -28,7 +28,7 @@ mkfs.ext4       $PART2
 mkdir mnt
 mount $PART2 mnt
 
-debootstrap groovy mnt http://jp.archive.ubuntu.com/ubuntu
+debootstrap hirsute mnt http://archive.ubuntu.com/ubuntu
 
 echo $PART1
 echo $PART2
@@ -46,7 +46,7 @@ UUID2=$(blkid -s UUID $PART2 | awk '{ print $2 }')
 echo "$UUID1\t/boot/efi\tvfat\tumask=0077\t0\t0" >> mnt/etc/fstab
 echo "$UUID2\t/\text4\terrors=remount-ro\t0\t1"  >> mnt/etc/fstab
 
-chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt update && apt upgrade -y"
+chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt update && apt upgrade -y && apt clean"
 chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt install linux-image-generic grub-efi bash-completion ufw ssh avahi-daemon -y"
 
 chroot mnt sh -c "grub-install"
