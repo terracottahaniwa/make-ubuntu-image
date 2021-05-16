@@ -1,10 +1,10 @@
 #!/bin/bash
 
 if [ -d mnt ]; then
-  umount mnt/root/efi
   umount mnt/dev
   umount mnt/sys
   umount mnt/proc
+  umount mnt/root/efi
   umount -l mnt
   rm -rf mnt
   losetup -D
@@ -25,28 +25,28 @@ losetup -P $(losetup -f) img
 
 PART1=$(losetup -l | grep $(pwd)/img | awk '{ print $1 }')p1
 PART2=$(losetup -l | grep $(pwd)/img | awk '{ print $1 }')p2
-
-apt install dosfstools
-mkfs.vfat -F 32 $PART1
-mkfs.ext4       $PART2
-
-mkdir mnt
-mount $PART2 mnt
-
-debootstrap hirsute mnt http://archive.ubuntu.com/ubuntu
-
 echo $PART1
 echo $PART2
 
+DEBIAN_FRONTEND=noninteractive apt update
+DEBIAN_FRONTEND=noninteractive apt install dosfstools debootstrap -y
+mkfs.vfat -F 32 $PART1
+mkfs.ext4       $PART2
+
+UUID1=$(blkid -s UUID $PART1 | awk '{ print $2 }')
+UUID2=$(blkid -s UUID $PART2 | awk '{ print $2 }')
+echo $UUID1
+echo $UUID2
+
+mkdir mnt
+mount $PART2 mnt
 mkdir -p mnt/boot/efi
 mount -o umask=0077 $PART1 mnt/boot/efi
-
 mount -t proc none mnt/proc
 mount -t sysfs none mnt/sys
 mount -t devtmpfs none mnt/dev
 
-UUID1=$(blkid -s UUID $PART1 | awk '{ print $2 }')
-UUID2=$(blkid -s UUID $PART2 | awk '{ print $2 }')
+debootstrap hirsute mnt http://archive.ubuntu.com/ubuntu
 
 echo "$UUID1\t/boot/efi\tvfat\tumask=0077\t0\t0" >> mnt/etc/fstab
 echo "$UUID2\t/\text4\terrors=remount-ro\t0\t1"  >> mnt/etc/fstab
@@ -73,9 +73,10 @@ chroot mnt sh -c "gpasswd -a ubuntu sudo"
 chroot mnt sh -c "ufw allow ssh && yes | ufw enable ; ufw status"
 chroot mnt
 
-umount mnt/boot/efi
 umount mnt/dev
 umount mnt/sys
 umount mnt/proc
+umount mnt/boot/efi
 umount -l mnt
+rm -rf mnt
 losetup -D
