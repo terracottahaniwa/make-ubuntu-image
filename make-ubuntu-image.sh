@@ -42,11 +42,12 @@ mkdir mnt
 mount $PART2 mnt
 mkdir -p mnt/boot/efi
 mount -o umask=0077 $PART1 mnt/boot/efi
+
+debootstrap hirsute mnt http://archive.ubuntu.com/ubuntu
+
 mount -t proc none mnt/proc
 mount -t sysfs none mnt/sys
 mount -t devtmpfs none mnt/dev
-
-debootstrap hirsute mnt http://archive.ubuntu.com/ubuntu
 
 echo "$UUID1\t/boot/efi\tvfat\tumask=0077\t0\t0" >> mnt/etc/fstab
 echo "$UUID2\t/\text4\terrors=remount-ro\t0\t1"  >> mnt/etc/fstab
