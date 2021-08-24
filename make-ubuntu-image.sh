@@ -59,8 +59,8 @@ chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt install network-m
 chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt clean"
 
 chroot mnt sh -c "grub-install"
-chroot mnt sh -c "sed -i -e 's/^gfxpayload_dynamic=\"1\"$/gfxpayload_dynamic=\"0\"/g' /etc/grub.d/10_linux"
 chroot mnt sh -c "sed -i -e '/^GRUB_CMDLINE_LINUX=/s/\"\"/\"systemd.show_status=1 modprobe.blacklist=nouveau\"/g' /etc/default/grub"
+chroot mnt sh -c "sed -i -e '/^GRUB_CMDLINE_LINUX=/a GRUB_GFXPAYLOAD_LINUX=text' /etc/default/grub"
 chroot mnt update-grub
 
 chroot mnt sh -c "echo 'network:'                   >> /etc/netplan/NetworkManager.yaml"
