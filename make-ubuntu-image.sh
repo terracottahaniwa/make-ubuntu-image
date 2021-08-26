@@ -1,5 +1,37 @@
 #!/bin/bash
 
+
+# settings
+
+export IMG_SIZE=6G
+export ESP_SIZE=512M
+export DISTNAME=hirsute
+export REPO_URL=http://jp.archive.ubuntu.com/ubuntu
+export HOSTNAME=hirsute
+export USERNAME=ubuntu
+
+# packages
+
+export PACKAGES="\
+linux-image-generic-hwe-20.04 shim-signed grub-efi-amd64-signed mokutil \
+network-manager ufw avahi-daemon ssh bash-completion ubuntu-desktop"
+
+
+command -v parted > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  apt install parted
+fi
+
+command -v debootstrap > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  apt install debootstrap
+fi
+
+command -v mkfs.vfat > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  apt install dosfstools
+fi
+
 if [ -d mnt ]; then
   umount mnt/dev
   umount mnt/sys
@@ -14,10 +46,10 @@ if [ -f img ]; then
   rm -f img
 fi
 
-fallocate -l 6G img
+fallocate -l $IMG_SIZE img
 parted -s -a opt img mklabel gpt
-parted -s -a opt img mkpart fat32  0% 512M
-parted -s -a opt img mkpart ext4 512M 100%
+parted -s -a opt img mkpart fat32  0% $ESP_SIZE
+parted -s -a opt img mkpart ext4 $ESP_SIZE 100%
 parted -s -a opt img set 1 boot on
 parted -s -a opt img set 1 esp  on
 
@@ -28,8 +60,6 @@ PART2=$(losetup -l | grep $(pwd)/img | awk '{ print $1 }')p2
 echo $PART1
 echo $PART2
 
-DEBIAN_FRONTEND=noninteractive apt update
-DEBIAN_FRONTEND=noninteractive apt install dosfstools debootstrap -y
 mkfs.vfat -F 32 $PART1
 mkfs.ext4       $PART2
 
@@ -43,7 +73,8 @@ mount $PART2 mnt
 mkdir -p mnt/boot/efi
 mount -o umask=0077 $PART1 mnt/boot/efi
 
-debootstrap hirsute mnt http://archive.ubuntu.com/ubuntu
+export DEBIAN_FRONTEND=noninteractive
+debootstrap $DISTNAME mnt $REPO_URL
 
 mount -t proc none mnt/proc
 mount -t sysfs none mnt/sys
@@ -53,24 +84,23 @@ echo "$UUID1\t/boot/efi\tvfat\tumask=0077\t0\t0" >> mnt/etc/fstab
 echo "$UUID2\t/\text4\terrors=remount-ro\t0\t1"  >> mnt/etc/fstab
 echo "tmpfs\t/tmp\ttmpfs\tdefaults\t0\t0"        >> mnt/etc/fstab
 
-chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt update && apt upgrade -y"
-chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt install linux-image-generic shim-signed grub-efi-amd64-signed mokutil -y"
-chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt install network-manager ufw avahi-daemon ssh bash-completion ubuntu-desktop -y"
-chroot mnt sh -c "export DEBIAN_FRONTEND=noninteractive && apt clean"
+echo $HOSTNAME > mnt/etc/hostname
+chroot mnt sh -c "hostname $(cat /etc/hostname)"
+
+export HEADER="export DEBIAN_FRONTEND=noninteractive &&"
+chroot mnt sh -c "${HEADER} apt update && apt upgrade -y"
+chroot mnt sh -c "${HEADER} apt install ${PACKAGES} -y"
+chroot mnt sh -c "${HEADER} apt clean && rm -rf /var/lib/apt/lists/*"
 
 chroot mnt sh -c "grub-install"
 chroot mnt sh -c "sed -i -e '/^GRUB_CMDLINE_LINUX=/s/\"\"/\"systemd.show_status=1 modprobe.blacklist=nouveau\"/g' /etc/default/grub"
 chroot mnt sh -c "sed -i -e '/^GRUB_CMDLINE_LINUX=/a GRUB_GFXPAYLOAD_LINUX=text' /etc/default/grub"
 chroot mnt update-grub
 
-chroot mnt sh -c "echo 'network:'                   >> /etc/netplan/NetworkManager.yaml"
-chroot mnt sh -c "echo '  version: 2'               >> /etc/netplan/NetworkManager.yaml"
-chroot mnt sh -c "echo '  renderer: NetworkManager' >> /etc/netplan/NetworkManager.yaml"
-chroot mnt sh -c "echo 'hirsute' > /etc/hostname"
-chroot mnt sh -c "hostname $(echo /etc/hostname)"
+cp NetworkManager.yaml > mnt/etc/netplan/NetworkManager.yaml
 
-chroot mnt sh -c "adduser ubuntu"
-chroot mnt sh -c "gpasswd -a ubuntu sudo"
+chroot mnt sh -c "adduser ${USERNAME}"
+chroot mnt sh -c "gpasswd -a ${USERNAME} sudo"
 chroot mnt sh -c "ufw allow ssh && yes | ufw enable ; ufw status"
 chroot mnt
 
