@@ -101,7 +101,7 @@ cp NetworkManager.yaml > mnt/etc/netplan/NetworkManager.yaml
 
 chroot mnt sh -c "adduser ${USERNAME}"
 chroot mnt sh -c "gpasswd -a ${USERNAME} sudo"
-chroot mnt sh -c "ufw allow ssh && yes | ufw enable ; ufw status"
+chroot mnt sh -c "ufw limit ssh && yes | ufw enable ; ufw status"
 chroot mnt
 
 umount mnt/dev
