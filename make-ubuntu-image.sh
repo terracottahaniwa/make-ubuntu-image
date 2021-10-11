@@ -5,9 +5,9 @@
 
 export IMG_SIZE=6G
 export ESP_SIZE=512M
-export DISTNAME=hirsute
+export DISTNAME=impish
 export REPO_URL=http://jp.archive.ubuntu.com/ubuntu
-export HOSTNAME=hirsute
+export HOSTNAME=impish
 export USERNAME=ubuntu
 
 # packages
@@ -19,31 +19,31 @@ network-manager ufw avahi-daemon ssh bash-completion ubuntu-desktop"
 
 command -v parted > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  apt install parted
+    apt install parted
 fi
 
 command -v debootstrap > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  apt install debootstrap
+    apt install debootstrap
 fi
 
 command -v mkfs.vfat > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  apt install dosfstools
+    apt install dosfstools
 fi
 
 if [ -d mnt ]; then
-  umount mnt/dev
-  umount mnt/sys
-  umount mnt/proc
-  umount mnt/root/efi
-  umount -l mnt
-  rm -rf mnt
-  losetup -D
+    umount mnt/dev
+    umount mnt/sys
+    umount mnt/proc
+    umount mnt/root/efi
+    umount -l mnt
+    rm -rf mnt
+    losetup -D
 fi
 
 if [ -f img ]; then
-  rm -f img
+    rm -f img
 fi
 
 fallocate -l $IMG_SIZE img
