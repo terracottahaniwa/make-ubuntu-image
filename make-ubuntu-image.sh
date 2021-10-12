@@ -80,9 +80,9 @@ mount -t proc none mnt/proc
 mount -t sysfs none mnt/sys
 mount -t devtmpfs none mnt/dev
 
-echo "$UUID1\t/boot/efi\tvfat\tumask=0077\t0\t0" >> mnt/etc/fstab
-echo "$UUID2\t/\text4\terrors=remount-ro\t0\t1"  >> mnt/etc/fstab
-echo "tmpfs\t/tmp\ttmpfs\tdefaults\t0\t0"        >> mnt/etc/fstab
+echo -e "$UUID1\t/boot/efi\tvfat\tumask=0077\t0\t0" >> mnt/etc/fstab
+echo -e "$UUID2\t/\text4\terrors=remount-ro\t0\t1"  >> mnt/etc/fstab
+echo -e "tmpfs\t/tmp\ttmpfs\tdefaults\t0\t0"        >> mnt/etc/fstab
 
 echo $HOSTNAME > mnt/etc/hostname
 chroot mnt sh -c "hostname $(cat /etc/hostname)"
