@@ -97,7 +97,7 @@ chroot mnt sh -c "sed -i -e '/^GRUB_CMDLINE_LINUX=/s/\"\"/\"systemd.show_status=
 chroot mnt sh -c "sed -i -e '/^GRUB_CMDLINE_LINUX=/a GRUB_GFXPAYLOAD_LINUX=text' /etc/default/grub"
 chroot mnt update-grub
 
-cp NetworkManager.yaml > mnt/etc/netplan/NetworkManager.yaml
+cp NetworkManager.yaml mnt/etc/netplan/NetworkManager.yaml
 
 chroot mnt sh -c "adduser ${USERNAME}"
 chroot mnt sh -c "gpasswd -a ${USERNAME} sudo"
