@@ -13,7 +13,7 @@ export USERNAME=ubuntu
 # packages
 
 export PACKAGES="\
-linux-image-generic-hwe-20.04 shim-signed grub-efi-amd64-signed mokutil \
+linux-image-generic shim-signed grub-efi-amd64-signed mokutil \
 network-manager ufw avahi-daemon ssh bash-completion ubuntu-desktop"
 
 
