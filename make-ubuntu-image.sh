@@ -5,9 +5,9 @@
 
 export IMG_SIZE=6G
 export ESP_SIZE=512M
-export DISTNAME=impish
+export DISTNAME=jammy
 export REPO_URL=http://jp.archive.ubuntu.com/ubuntu
-export HOSTNAME=impish
+export HOSTNAME=jammy
 export USERNAME=ubuntu
 
 # packages
