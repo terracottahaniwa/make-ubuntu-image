@@ -3,7 +3,7 @@
 
 # settings
 
-export IMG_SIZE=6G
+export IMG_SIZE=8G
 export ESP_SIZE=512M
 export DISTNAME=jammy
 export REPO_URL=http://jp.archive.ubuntu.com/ubuntu
