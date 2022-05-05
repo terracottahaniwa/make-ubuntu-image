@@ -13,8 +13,10 @@ export USERNAME=ubuntu
 # packages
 
 export PACKAGES="\
-linux-image-generic shim-signed grub-efi-amd64-signed mokutil \
-network-manager ufw avahi-daemon ssh bash-completion ubuntu-desktop"
+linux-image-generic linux-headers-generic \
+grub2-common grub-efi-amd64-signed shim-signed mokutil \
+network-manager avahi-daemon ssh ufw \
+bash-completion vim-runtime ubuntu-desktop"
 
 
 command -v parted > /dev/null 2>&1
@@ -36,7 +38,7 @@ if [ -d mnt ]; then
     umount mnt/dev
     umount mnt/sys
     umount mnt/proc
-    umount mnt/root/efi
+    umount mnt/boot/efi
     umount -l mnt
     rm -rf mnt
     losetup -D
@@ -86,6 +88,12 @@ echo -e "tmpfs\t/tmp\ttmpfs\tdefaults\t0\t0"        >> mnt/etc/fstab
 
 echo $HOSTNAME > mnt/etc/hostname
 chroot mnt sh -c "hostname $(cat /etc/hostname)"
+
+export SEC_REPO=http://security.ubuntu.com/ubuntu
+echo -e "deb $REPO_URL $DISTNAME main universe restricted multiverse"           >  mnt/etc/apt/sources.list
+echo -e "deb $REPO_URL $DISTNAME-updates main universe restricted multiverse"   >> mnt/etc/apt/sources.list
+echo -e "deb $REPO_URL $DISTNAME-backports main universe restricted multiverse" >> mnt/etc/apt/sources.list
+echo -e "deb $SEC_REPO $DISTNAME-security main universe restricted multiverse"  >> mnt/etc/apt/sources.list
 
 export HEADER="export DEBIAN_FRONTEND=noninteractive &&"
 chroot mnt sh -c "${HEADER} apt update && apt upgrade -y"
