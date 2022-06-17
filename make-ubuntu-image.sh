@@ -15,8 +15,8 @@ export USERNAME=ubuntu
 export PACKAGES="\
 linux-image-generic linux-headers-generic \
 grub2-common grub-efi-amd64-signed shim-signed mokutil \
-network-manager avahi-daemon ssh ufw git \
-bash-completion vim-runtime ubuntu-desktop"
+network-manager avahi-daemon ssh ufw curl git \
+bash-completion vim-runtime ubuntu-desktop-minimal"
 
 
 command -v parted > /dev/null 2>&1
